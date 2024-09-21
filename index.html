@@ -6,10 +6,34 @@
         <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="css/leaflet.css">
-        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
-        <link rel="stylesheet" href="css/qgis2web.css">
-        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="./resources/ol.css">
+        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+        <link rel="stylesheet" href="./resources/qgis2web.css">
+        <style>
+        html, body {
+            background-color: #ffffff;
+        }
+        .ol-control > * {
+            background-color: #f8f8f8!important;
+            color: #444444!important;
+            border-radius: 0px;
+        }
+        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
+            color: #444444!important;
+        }
+        .search-layer-input-search {
+            background-color: #f8f8f8!important;
+        }
+        .ol-control > *:focus, .ol-control >*:hover {
+            background-color: rgba(248, 248, 248, 0.7)!important;
+        } 
+        .ol-control {
+            background-color: rgba(255,255,255,.4) !important;
+            padding: 2px !important;
+        } 
+        </style>
+
         <style>
         html, body, #map {
             width: 100%;
@@ -22,502 +46,20 @@
     </head>
     <body>
         <div id="map">
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+            </div>
         </div>
-        <script src="js/qgis2web_expressions.js"></script>
-        <script src="js/leaflet.js"></script>
-        <script src="js/L.Control.Layers.Tree.min.js"></script>
-        <script src="js/leaflet-svg-shape-markers.min.js"></script>
-        <script src="js/leaflet.rotatedMarker.js"></script>
-        <script src="js/leaflet.pattern.js"></script>
-        <script src="js/leaflet-hash.js"></script>
-        <script src="js/Autolinker.min.js"></script>
-        <script src="js/rbush.min.js"></script>
-        <script src="js/labelgun.min.js"></script>
-        <script src="js/labels.js"></script>
-        <script src="data/_1.js"></script>
-        <script src="data/_2.js"></script>
-        <script>
-        var map = L.map('map', {
-            zoomControl:false, maxZoom:28, minZoom:1
-        })
-        var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
-        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        // remove popup's row if "visible-with-data"
-        function removeEmptyRowsFromPopupContent(content, feature) {
-         var tempDiv = document.createElement('div');
-         tempDiv.innerHTML = content;
-         var rows = tempDiv.querySelectorAll('tr');
-         for (var i = 0; i < rows.length; i++) {
-             var td = rows[i].querySelector('td.visible-with-data');
-             var key = td ? td.id : '';
-             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
-                 rows[i].parentNode.removeChild(rows[i]);
-             }
-         }
-         return tempDiv.innerHTML;
-        }
-        // add class to format popup if it contains media
-		function addClassToPopupIfMedia(content, popup) {
-			var tempDiv = document.createElement('div');
-			tempDiv.innerHTML = content;
-			if (tempDiv.querySelector('td img')) {
-				popup._contentNode.classList.add('media');
-					// Delay to force the redraw
-					setTimeout(function() {
-						popup.update();
-					}, 10);
-			} else {
-				popup._contentNode.classList.remove('media');
-			}
-		}
-        var zoomControl = L.control.zoom({
-            position: 'topleft'
-        }).addTo(map);
-        var bounds_group = new L.featureGroup([]);
-        function setBounds() {
-            if (bounds_group.getLayers().length) {
-                map.fitBounds(bounds_group.getBounds());
-            }
-        }
-        map.createPane('pane_GoogleSatellite_0');
-        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
-        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            pane: 'pane_GoogleSatellite_0',
-            opacity: 1.0,
-            attribution: '',
-            minZoom: 1,
-            maxZoom: 28,
-        });
-        layer_GoogleSatellite_0;
-        map.addLayer(layer_GoogleSatellite_0);
-        function pop__1(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['เขต'] !== null ? autolinker.link(feature.properties['เขต'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['อำเ'] !== null ? autolinker.link(feature.properties['อำเ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ตำบ'] !== null ? autolinker.link(feature.properties['ตำบ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['หมู'] !== null ? autolinker.link(feature.properties['หมู'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['หน่'] !== null ? autolinker.link(feature.properties['หน่'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['สถา'] !== null ? autolinker.link(feature.properties['สถา'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ผู้'] !== null ? autolinker.link(feature.properties['ผู้'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ผู_1'] !== null ? autolinker.link(feature.properties['ผู_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ก้า'] !== null ? autolinker.link(feature.properties['ก้า'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['เพื'] !== null ? autolinker.link(feature.properties['เพื'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['รวม'] !== null ? autolinker.link(feature.properties['รวม'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['พลั'] !== null ? autolinker.link(feature.properties['พลั'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ประ'] !== null ? autolinker.link(feature.properties['ประ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ภูม'] !== null ? autolinker.link(feature.properties['ภูม'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ไทย'] !== null ? autolinker.link(feature.properties['ไทย'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['อื่'] !== null ? autolinker.link(feature.properties['อื่'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P_win'] !== null ? autolinker.link(feature.properties['P_win'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['kk_win'] !== null ? autolinker.link(feature.properties['kk_win'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['lat'] !== null ? autolinker.link(feature.properties['lat'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['lon'] !== null ? autolinker.link(feature.properties['lon'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SUM_or'] !== null ? autolinker.link(feature.properties['SUM_or'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2"><strong>KK_per</strong><br />' + (feature.properties['KK_per'] !== null ? autolinker.link(feature.properties['KK_per'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style__1_0(feature) {
-            if (feature.properties['KK_per'] >= 22.820000 && feature.properties['KK_per'] <= 27.300000 ) {
-                return {
-                pane: 'pane__1',
-                radius: 2.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,141,1,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['KK_per'] >= 27.300000 && feature.properties['KK_per'] <= 29.580000 ) {
-                return {
-                pane: 'pane__1',
-                radius: 5.5,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,141,1,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['KK_per'] >= 29.580000 && feature.properties['KK_per'] <= 32.720000 ) {
-                return {
-                pane: 'pane__1',
-                radius: 9.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,141,1,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['KK_per'] >= 32.720000 && feature.properties['KK_per'] <= 36.740000 ) {
-                return {
-                pane: 'pane__1',
-                radius: 12.5,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,141,1,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['KK_per'] >= 36.740000 && feature.properties['KK_per'] <= 51.490000 ) {
-                return {
-                pane: 'pane__1',
-                radius: 16.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(255,141,1,1.0)',
-                interactive: false,
-            }
-            }
-        }
-        map.createPane('pane__1');
-        map.getPane('pane__1').style.zIndex = 401;
-        map.getPane('pane__1').style['mix-blend-mode'] = 'normal';
-        var layer__1 = new L.geoJson(json__1, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json__1',
-            layerName: 'layer__1',
-            pane: 'pane__1',
-            onEachFeature: pop__1,
-            pointToLayer: function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.circleMarker(latlng, style__1_0(feature));
-            },
-        });
-        bounds_group.addLayer(layer__1);
-        map.addLayer(layer__1);
-        function pop__2(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['เขต'] !== null ? autolinker.link(feature.properties['เขต'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['อำเ'] !== null ? autolinker.link(feature.properties['อำเ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ตำบ'] !== null ? autolinker.link(feature.properties['ตำบ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['หมู'] !== null ? autolinker.link(feature.properties['หมู'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['หน่'] !== null ? autolinker.link(feature.properties['หน่'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['สถา'] !== null ? autolinker.link(feature.properties['สถา'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ผู้'] !== null ? autolinker.link(feature.properties['ผู้'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ผู_1'] !== null ? autolinker.link(feature.properties['ผู_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ก้า'] !== null ? autolinker.link(feature.properties['ก้า'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['เพื'] !== null ? autolinker.link(feature.properties['เพื'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['รวม'] !== null ? autolinker.link(feature.properties['รวม'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['พลั'] !== null ? autolinker.link(feature.properties['พลั'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ประ'] !== null ? autolinker.link(feature.properties['ประ'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ภูม'] !== null ? autolinker.link(feature.properties['ภูม'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ไทย'] !== null ? autolinker.link(feature.properties['ไทย'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['อื่'] !== null ? autolinker.link(feature.properties['อื่'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['P_win'] !== null ? autolinker.link(feature.properties['P_win'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['kk_win'] !== null ? autolinker.link(feature.properties['kk_win'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['lat'] !== null ? autolinker.link(feature.properties['lat'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['lon'] !== null ? autolinker.link(feature.properties['lon'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SUM_or'] !== null ? autolinker.link(feature.properties['SUM_or'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2"><strong>Or_per</strong><br />' + (feature.properties['Or_per'] !== null ? autolinker.link(feature.properties['Or_per'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style__2_0(feature) {
-            if (feature.properties['Or_per'] >= 42.040000 && feature.properties['Or_per'] <= 52.478000 ) {
-                return {
-                pane: 'pane__2',
-                shape: 'diamond',
-                radius: 2.0,
-                opacity: 1,
-                color: 'rgba(50,87,128,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,123,182,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['Or_per'] >= 52.478000 && feature.properties['Or_per'] <= 55.480000 ) {
-                return {
-                pane: 'pane__2',
-                shape: 'diamond',
-                radius: 5.5,
-                opacity: 1,
-                color: 'rgba(50,87,128,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,123,182,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['Or_per'] >= 55.480000 && feature.properties['Or_per'] <= 59.648000 ) {
-                return {
-                pane: 'pane__2',
-                shape: 'diamond',
-                radius: 9.0,
-                opacity: 1,
-                color: 'rgba(50,87,128,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,123,182,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['Or_per'] >= 59.648000 && feature.properties['Or_per'] <= 62.590000 ) {
-                return {
-                pane: 'pane__2',
-                shape: 'diamond',
-                radius: 12.5,
-                opacity: 1,
-                color: 'rgba(50,87,128,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,123,182,1.0)',
-                interactive: false,
-            }
-            }
-            if (feature.properties['Or_per'] >= 62.590000 && feature.properties['Or_per'] <= 70.400000 ) {
-                return {
-                pane: 'pane__2',
-                shape: 'diamond',
-                radius: 16.0,
-                opacity: 1,
-                color: 'rgba(50,87,128,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,123,182,1.0)',
-                interactive: false,
-            }
-            }
-        }
-        map.createPane('pane__2');
-        map.getPane('pane__2').style.zIndex = 402;
-        map.getPane('pane__2').style['mix-blend-mode'] = 'normal';
-        var layer__2 = new L.geoJson(json__2, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json__2',
-            layerName: 'layer__2',
-            pane: 'pane__2',
-            onEachFeature: pop__2,
-            pointToLayer: function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.shapeMarker(latlng, style__2_0(feature));
-            },
-        });
-        bounds_group.addLayer(layer__2);
-        map.addLayer(layer__2);
-        var baseMaps = {};
-        var overlaysTree = [
-            {label: 'แพ้<br /><table><tr><td style="text-align: center;"><img src="legend/_2_425250.png" /></td><td>42 - 52.5</td></tr><tr><td style="text-align: center;"><img src="legend/_2_5255551.png" /></td><td>52.5 - 55.5</td></tr><tr><td style="text-align: center;"><img src="legend/_2_5555962.png" /></td><td>55.5 - 59.6</td></tr><tr><td style="text-align: center;"><img src="legend/_2_5966263.png" /></td><td>59.6 - 62.6</td></tr><tr><td style="text-align: center;"><img src="legend/_2_6267044.png" /></td><td>62.6 - 70.4</td></tr></table>', layer: layer__2},
-            {label: 'ชนะ<br /><table><tr><td style="text-align: center;"><img src="legend/_1_2282730.png" /></td><td>22.8 - 27.3</td></tr><tr><td style="text-align: center;"><img src="legend/_1_2732961.png" /></td><td>27.3 - 29.6</td></tr><tr><td style="text-align: center;"><img src="legend/_1_2963272.png" /></td><td>29.6 - 32.7</td></tr><tr><td style="text-align: center;"><img src="legend/_1_3273673.png" /></td><td>32.7 - 36.7</td></tr><tr><td style="text-align: center;"><img src="legend/_1_3675154.png" /></td><td>36.7 - 51.5</td></tr></table>', layer: layer__1},
-            {label: "Google Satellite", layer: layer_GoogleSatellite_0},]
-        var lay = L.control.layers.tree(null, overlaysTree,{
-            //namedToggle: true,
-            //selectorBack: false,
-            //closedSymbol: '&#8862; &#x1f5c0;',
-            //openedSymbol: '&#8863; &#x1f5c1;',
-            //collapseAll: 'Collapse all',
-            //expandAll: 'Expand all',
-            collapsed: false, 
-        });
-        lay.addTo(map);
-		document.addEventListener("DOMContentLoaded", function() {
-            // set new Layers List height which considers toggle icon
-            function newLayersListHeight() {
-                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
-                if (layerScrollbarElement) {
-                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
-                    var originalHeight = layersListElement.style.height 
-                        || window.getComputedStyle(layersListElement).height;
-                    var newHeight = parseFloat(originalHeight) - 50;
-                    layersListElement.style.height = newHeight + 'px';
-                }
-            }
-            var isLayersListExpanded = true;
-            var controlLayersElement = document.querySelector('.leaflet-control-layers');
-            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
-            // toggle Collapsed/Expanded and apply new Layers List height
-            toggleLayerControl.addEventListener('click', function() {
-                if (isLayersListExpanded) {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                } else {
-                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
-                }
-                isLayersListExpanded = !isLayersListExpanded;
-                newLayersListHeight()
-            });	
-			// apply new Layers List height if toggle layerstree
-			if (controlLayersElement) {
-				controlLayersElement.addEventListener('click', function(event) {
-					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
-					if (toggleLayerHeaderPointer) {
-						newLayersListHeight();
-					}
-				});
-			}
-            // Collapsed/Expanded at Start to apply new height
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            // Collapsed touch/small screen
-            var isSmallScreen = window.innerWidth < 650;
-            if (isSmallScreen) {
-                setTimeout(function() {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                    isLayersListExpanded = !isLayersListExpanded;
-                }, 500);
-            }  
-        });       
-        setBounds();
-        </script>
+        <script src="resources/qgis2web_expressions.js"></script>
+        <script src="resources/polyfills.js"></script>
+        <script src="./resources/functions.js"></script>
+        <script src="./resources/ol.js"></script>
+        <script src="./resources/ol-layerswitcher.js"></script>
+        <script src="layers/_1.js"></script><script src="layers/_2.js"></script>
+        <script src="styles/_1_style.js"></script><script src="styles/_2_style.js"></script>
+        <script src="./layers/layers.js" type="text/javascript"></script> 
+        <script src="./resources/Autolinker.min.js"></script>
+        <script src="./resources/qgis2web.js"></script>
     </body>
 </html>
